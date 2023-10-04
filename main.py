@@ -2,6 +2,8 @@ import requests
 import itertools
 from collections import Counter
 from terminaltables import AsciiTable
+import os
+from dotenv import load_dotenv
 
 
 def hh_predict_rub_salary(response):
@@ -69,7 +71,7 @@ def sj_get_vacancies(top_languages):
         for page in range(5):
             url = 'https://api.superjob.ru/2.0/vacancies/'
             headers = {
-                'X-Api-App-Id': 'v3.r.137866368.cb45575fbed08c798550430c06acdb3fc0740622.f04d84ede0e2ea9541d5a6ac8f3b53db7f8234d7'
+                'X-Api-App-Id': os.environ["SUPERJOB_KEY"]
             }
             payload = {
                 'town': 'Москва',
@@ -103,6 +105,8 @@ def print_table(title, statistic_vacancies):
 
 
 def main():
+    load_dotenv()
+    secret_key = os.environ["SUPERJOB_KEY"]
     top_languages = ['Javascript', 'Java', 'Python', 'Ruby', 'PHP', 'C++', 'CSS', 'C#', 'C', 'GO']
     print_table('HeadHunter Moscow', hh_get_vacancies(top_languages))
     print_table('SuperJob Moscow', sj_get_vacancies(top_languages))
