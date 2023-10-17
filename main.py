@@ -36,6 +36,7 @@ def hh_get_vacancies_statistics(top_languages):
     region_id = 1
     number_of_days = 30
     for language in top_languages:
+        responses = []
         forecast = {
             'vacancies_processed': 0,
             "average_salary": 0
@@ -52,11 +53,13 @@ def hh_get_vacancies_statistics(top_languages):
             response = requests.get(url, params=payload)
             response.raise_for_status()
             vacancies = response.json()
+            responses.append(vacancies)
+            if page_number + 1 == vacancies['pages']:
+                break
+        for vacancies in responses:
             salary_statistics = hh_predict_rub_salary(vacancies)
             forecast['vacancies_processed'] += salary_statistics[0]
             forecast["average_salary"] += salary_statistics[1]
-            if page_number + 1 == vacancies['pages']:
-                break
         if forecast["vacancies_processed"]:
             forecast["average_salary"] = int(forecast["average_salary"] / forecast["vacancies_processed"])
         medium_salary = {'vacancies_found': vacancies["found"]} | forecast
@@ -84,6 +87,7 @@ def sj_get_vacancies_statistics(top_languages, secret_key):
     number_of_days = 30
     max_number_of_pages = 5
     for language in top_languages:
+        responses = []
         forecast = {
             'vacancies_processed': 0,
             "average_salary": 0
@@ -105,9 +109,11 @@ def sj_get_vacancies_statistics(top_languages, secret_key):
             response = requests.get(url, params=payload, headers=headers)
             response.raise_for_status()
             vacancies = response.json()
+            responses.append(vacancies)
+        for vacancies in responses:
             salary_statistics = sj_predict_rub_salary(vacancies)
             forecast['vacancies_processed'] += salary_statistics[0]
-            forecast["average_salary"] += salary_statistics[1]  
+            forecast["average_salary"] += salary_statistics[1]
         if forecast["vacancies_processed"]:
             forecast["average_salary"] = int(forecast["average_salary"] / forecast["vacancies_processed"])
         medium_salary = {'vacancies_found': vacancies['total']} | forecast
