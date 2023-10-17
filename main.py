@@ -27,7 +27,7 @@ def hh_predict_rub_salary(vacancies):
                 continue
             else:
                 salaries.append(get_average_salary(salary_from, salary_to))
-    return (len(salaries), sum(salaries))
+    return salaries
 
 
 def hh_get_vacancies_statistics(top_languages):
@@ -58,8 +58,8 @@ def hh_get_vacancies_statistics(top_languages):
                 break
         for vacancies in responses:
             salary_statistics = hh_predict_rub_salary(vacancies)
-            forecast['vacancies_processed'] += salary_statistics[0]
-            forecast["average_salary"] += salary_statistics[1]
+            forecast['vacancies_processed'] += len(salary_statistics)
+            forecast["average_salary"] += sum(salary_statistics) 
         if forecast["vacancies_processed"]:
             forecast["average_salary"] = int(forecast["average_salary"] / forecast["vacancies_processed"])
         medium_salary = {'vacancies_found': vacancies["found"]} | forecast
@@ -75,8 +75,8 @@ def sj_predict_rub_salary(vacancies):
         if item["currency"] != 'rub':
             return None
         else:
-            salaries.append(get_array_salaries(payment_from, payment_to))
-    return (len(salaries), sum(salaries))
+            salaries.append(get_average_salary(payment_from, payment_to))
+    return salaries
 
 
 def sj_get_vacancies_statistics(top_languages, secret_key):
@@ -112,8 +112,8 @@ def sj_get_vacancies_statistics(top_languages, secret_key):
             responses.append(vacancies)
         for vacancies in responses:
             salary_statistics = sj_predict_rub_salary(vacancies)
-            forecast['vacancies_processed'] += salary_statistics[0]
-            forecast["average_salary"] += salary_statistics[1]
+            forecast['vacancies_processed'] += len(salary_statistics)
+            forecast["average_salary"] += sum(salary_statistics) 
         if forecast["vacancies_processed"]:
             forecast["average_salary"] = int(forecast["average_salary"] / forecast["vacancies_processed"])
         medium_salary = {'vacancies_found': vacancies['total']} | forecast
