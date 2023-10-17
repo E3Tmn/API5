@@ -111,7 +111,7 @@ def print_table(title, statistic_vacancies):
     table = [['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата']]
     for vacancy in statistic_vacancies:
             row = [vacancy]
-            for requirement, parameter in statistic_vacancies[vacancy].items():
+            for parameter in statistic_vacancies[vacancy].values():
                 row.append(parameter)
             table.append(row)
     table = AsciiTable(table, title)
