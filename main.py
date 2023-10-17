@@ -109,10 +109,11 @@ def sj_get_vacancies_statistics(top_languages, secret_key):
 
 def print_table(title, statistic_vacancies):
     table = [['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата']]
-    for counter, vacancy in enumerate(statistic_vacancies):
-            table.append([vacancy])
+    for vacancy in statistic_vacancies:
+            row = [vacancy]
             for requirement, parameter in statistic_vacancies[vacancy].items():
-                table[counter + 1].append(parameter)
+                row.append(parameter)
+            table.append(row)
     table = AsciiTable(table, title)
     print(table.table)
     return
