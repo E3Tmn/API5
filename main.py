@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 
 
-def get_array_salaries(salary_from, salary_to):
+def get_average_salary(salary_from, salary_to):
     if salary_from and salary_to:
         average_salary = (salary_from + salary_to)/2
     elif salary_from and not salary_to:
@@ -17,16 +17,16 @@ def get_array_salaries(salary_from, salary_to):
     return average_salary
 
 
-def hh_predict_rub_salary(response):
+def hh_predict_rub_salary(vacancies):
     salaries = []
-    for vacancy in response['items']:
+    for vacancy in vacancies['items']:
         if vacancy["salary"]:
             salary_from = vacancy["salary"]['from']
             salary_to = vacancy["salary"]['to']
             if vacancy["salary"]["currency"] != 'RUR':
                 continue
             else:
-                salaries.append(get_array_salaries(salary_from, salary_to))
+                salaries.append(get_average_salary(salary_from, salary_to))
     return (len(salaries), sum(salaries))
 
 
