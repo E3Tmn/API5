@@ -36,7 +36,10 @@ def hh_get_vacancies_statistics(top_languages):
     region_id = 1
     number_of_days = 30
     for language in top_languages:
-        forecast = Counter()
+        forecast = {
+            'vacancies_processed': 0,
+            "average_salary": 0
+        }
         for page_number in itertools.count(0):
             url = 'https://api.hh.ru/vacancies/'
             payload = {
@@ -50,10 +53,11 @@ def hh_get_vacancies_statistics(top_languages):
             response.raise_for_status()
             vacancies = response.json()
             salary_statistics = hh_predict_rub_salary(vacancies)
-            forecast += Counter({'vacancies_processed': salary_statistics[0], "average_salary": salary_statistics[1]})
+            forecast['vacancies_processed'] += salary_statistics[0]
+            forecast["average_salary"] += salary_statistics[1]
             if page_number + 1 == vacancies['pages']:
                 break
-        if forecast:
+        if forecast["vacancies_processed"]:
             forecast["average_salary"] = int(forecast["average_salary"] / forecast["vacancies_processed"])
         medium_salary = {'vacancies_found': vacancies["found"]} | forecast
         statistic_vacancies.setdefault(language, medium_salary)
@@ -80,7 +84,10 @@ def sj_get_vacancies_statistics(top_languages, secret_key):
     number_of_days = 30
     max_number_of_pages = 5
     for language in top_languages:
-        forecast = Counter()
+        forecast = {
+            'vacancies_processed': 0,
+            "average_salary": 0
+        }
         for page_number in range(max_number_of_pages):
             url = 'https://api.superjob.ru/2.0/vacancies/'
             headers = {
@@ -99,8 +106,9 @@ def sj_get_vacancies_statistics(top_languages, secret_key):
             response.raise_for_status()
             vacancies = response.json()
             salary_statistics = sj_predict_rub_salary(vacancies)
-            forecast += Counter({'vacancies_processed': salary_statistics[0], "average_salary": salary_statistics[1]})
-        if forecast:
+            forecast['vacancies_processed'] += salary_statistics[0]
+            forecast["average_salary"] += salary_statistics[1]  
+        if forecast["vacancies_processed"]:
             forecast["average_salary"] = int(forecast["average_salary"] / forecast["vacancies_processed"])
         medium_salary = {'vacancies_found': vacancies['total']} | forecast
         statistic_vacancies.setdefault(language, medium_salary)
