@@ -17,16 +17,13 @@ def get_average_salary(salary_from, salary_to):
     return average_salary
 
 
-def hh_predict_rub_salary(vacancies):
+def hh_predict_rub_salary(vacancy):
     salaries = []
-    for vacancy in vacancies['items']:
-        if vacancy["salary"]:
-            salary_from = vacancy["salary"]['from']
-            salary_to = vacancy["salary"]['to']
-            if vacancy["salary"]["currency"] != 'RUR':
-                continue
-            else:
-                salaries.append(get_average_salary(salary_from, salary_to))
+    if vacancy["salary"]:
+        salary_from = vacancy["salary"]['from']
+        salary_to = vacancy["salary"]['to']
+        if vacancy["salary"]["currency"] == 'RUR':
+            salaries.append(get_average_salary(salary_from, salary_to))
     return salaries
 
 
@@ -57,9 +54,10 @@ def hh_get_vacancies_statistics(top_languages):
             if page_number + 1 == vacancies['pages']:
                 break
         for vacancies in responses:
-            salary_statistics = hh_predict_rub_salary(vacancies)
-            forecast['vacancies_processed'] += len(salary_statistics)
-            forecast["average_salary"] += sum(salary_statistics) 
+            for vacancy in vacancies['items']:
+                salary_statistics = hh_predict_rub_salary(vacancy)
+                forecast['vacancies_processed'] += len(salary_statistics)
+                forecast["average_salary"] += sum(salary_statistics) 
         if forecast["vacancies_processed"]:
             forecast["average_salary"] = int(forecast["average_salary"] / forecast["vacancies_processed"])
         medium_salary = {'vacancies_found': vacancies["found"]} | forecast
@@ -67,15 +65,12 @@ def hh_get_vacancies_statistics(top_languages):
     return statistic_vacancies
 
 
-def sj_predict_rub_salary(vacancies):
+def sj_predict_rub_salary(vacancy):
     salaries = []
-    for vacancy in vacancies['objects']:
-        payment_from = vacancy['payment_from']
-        payment_to = vacancy['payment_to']
-        if vacancy["currency"] != 'rub':
-            return None
-        else:
-            salaries.append(get_average_salary(payment_from, payment_to))
+    payment_from = vacancy['payment_from']
+    payment_to = vacancy['payment_to']
+    if vacancy["currency"] == 'rub':
+        salaries.append(get_average_salary(payment_from, payment_to))
     return salaries
 
 
@@ -111,9 +106,10 @@ def sj_get_vacancies_statistics(top_languages, secret_key):
             vacancies = response.json()
             responses.append(vacancies)
         for vacancies in responses:
-            salary_statistics = sj_predict_rub_salary(vacancies)
-            forecast['vacancies_processed'] += len(salary_statistics)
-            forecast["average_salary"] += sum(salary_statistics) 
+            for vacancy in vacancies['objects']:
+                salary_statistics = sj_predict_rub_salary(vacancy)
+                forecast['vacancies_processed'] += len(salary_statistics)
+                forecast["average_salary"] += sum(salary_statistics) 
         if forecast["vacancies_processed"]:
             forecast["average_salary"] = int(forecast["average_salary"] / forecast["vacancies_processed"])
         medium_salary = {'vacancies_found': vacancies['total']} | forecast
