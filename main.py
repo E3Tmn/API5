@@ -69,10 +69,10 @@ def hh_get_vacancies_statistics(top_languages):
 
 def sj_predict_rub_salary(vacancies):
     salaries = []
-    for item in vacancies['objects']:
-        payment_from = item['payment_from']
-        payment_to = item['payment_to']
-        if item["currency"] != 'rub':
+    for vacancy in vacancies['objects']:
+        payment_from = vacancy['payment_from']
+        payment_to = vacancy['payment_to']
+        if vacancy["currency"] != 'rub':
             return None
         else:
             salaries.append(get_average_salary(payment_from, payment_to))
