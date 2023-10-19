@@ -6,7 +6,6 @@ import os
 from dotenv import load_dotenv
 
 
-
 def get_average_salary(salary_from, salary_to):
     if salary_from and salary_to:
         average_salary = (salary_from + salary_to)/2
@@ -34,6 +33,10 @@ def hh_get_vacancies_statistics(top_languages):
     statistic_vacancies = {}
     for language in top_languages:
         responses = []
+        forecast = {
+            'vacancies_processed': 0,
+            "average_salary": 0
+        }
         for page_number in itertools.count(0):
             url = 'https://api.hh.ru/vacancies/'
             payload = {
@@ -121,10 +124,10 @@ def sj_get_vacancies_statistics(top_languages, secret_key):
 def print_table(title, statistic_vacancies):
     table = [['Язык программирования', 'Вакансий найдено', 'Вакансий обработано', 'Средняя зарплата']]
     for vacancy in statistic_vacancies:
-            row = [vacancy]
-            for parameter in statistic_vacancies[vacancy].values():
-                row.append(parameter)
-            table.append(row)
+        row = [vacancy]
+        for parameter in statistic_vacancies[vacancy].values():
+            row.append(parameter)
+        table.append(row)
     table = AsciiTable(table, title)
     print(table.table)
     return
