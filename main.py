@@ -28,16 +28,12 @@ def hh_predict_rub_salary(vacancy):
 
 
 def hh_get_vacancies_statistics(top_languages):
-    statistic_vacancies = {}
     number_of_elements = 100
     region_id = 1
     number_of_days = 30
+    statistic_vacancies = {}
     for language in top_languages:
         responses = []
-        forecast = {
-            'vacancies_processed': 0,
-            "average_salary": 0
-        }
         for page_number in itertools.count(0):
             url = 'https://api.hh.ru/vacancies/'
             payload = {
@@ -53,15 +49,18 @@ def hh_get_vacancies_statistics(top_languages):
             responses.append(vacancies)
             if page_number + 1 == vacancies['pages']:
                 break
+        list_of_salaries = []
         for vacancies in responses:
             for vacancy in vacancies['items']:
-                salary_statistics = hh_predict_rub_salary(vacancy)
-                forecast['vacancies_processed'] += len(salary_statistics)
-                forecast["average_salary"] += sum(salary_statistics) 
-        if forecast["vacancies_processed"]:
-            forecast["average_salary"] = int(forecast["average_salary"] / forecast["vacancies_processed"])
+                list_of_salaries += hh_predict_rub_salary(vacancy)
+        if len(list_of_salaries):
+            forecast = {
+                'vacancies_processed': len(list_of_salaries),
+                "average_salary": int(sum(list_of_salaries) / len(list_of_salaries))
+            }
         medium_salary = {'vacancies_found': vacancies["found"]} | forecast
-        statistic_vacancies.setdefault(language, medium_salary)
+        statistic_vacancies |= {language: medium_salary}
+
     return statistic_vacancies
 
 
@@ -105,15 +104,17 @@ def sj_get_vacancies_statistics(top_languages, secret_key):
             response.raise_for_status()
             vacancies = response.json()
             responses.append(vacancies)
+        list_of_salaries = []
         for vacancies in responses:
             for vacancy in vacancies['objects']:
-                salary_statistics = sj_predict_rub_salary(vacancy)
-                forecast['vacancies_processed'] += len(salary_statistics)
-                forecast["average_salary"] += sum(salary_statistics) 
-        if forecast["vacancies_processed"]:
-            forecast["average_salary"] = int(forecast["average_salary"] / forecast["vacancies_processed"])
-        medium_salary = {'vacancies_found': vacancies['total']} | forecast
-        statistic_vacancies.setdefault(language, medium_salary)
+                list_of_salaries += sj_predict_rub_salary(vacancy)
+        if len(list_of_salaries):
+            forecast = {
+                'vacancies_processed': len(list_of_salaries),
+                "average_salary": int(sum(list_of_salaries) / len(list_of_salaries))
+            }
+        medium_salary = {'vacancies_found': vacancies["total"]} | forecast
+        statistic_vacancies |= {language: medium_salary}
     return statistic_vacancies
 
 
